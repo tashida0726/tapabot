@@ -17,13 +17,13 @@ client.on('message', message =>{
     }
     let tok = message.content.split("$")
     if(tok.length == 2) {
-        console.log(message.content)
-        let text = "たぱ";
-        sendMsg(message.channel.id, tok[1]+"の情報たぱ");
-        sendMsg(message.channel.id, "Ticker: "+tok[1]);
-        sendMsg(message.channel.id, "Price: xx.xx $");
-        sendMsg(message.channel.id, "Estimation: xx.xx $");
-        sendMsg(message.channel.id, "Price/Estimation Ratio: xx %");
+        let ticker = tok[1].toUpperCase()
+        sendMsg(message.channel.id, "語る会銘柄["+ticker+"]たぱ");
+        sendMsg(message.channel.id, "ティッカー: "+ticker);
+        sendMsg(message.channel.id, "現在値: 3401.46 $");
+        sendMsg(message.channel.id, "見込み値: 5312.50 $");
+        sendMsg(message.channel.id, "乖離率: 64 %");
+        sendMsg(message.channel.id, "AWS プライム 通販 起業家オーナー◎ 売り上げ9倍 営利 5%");
         return;
     }
     sendMsg(message.channel.id, "よく分からないたぱ")
