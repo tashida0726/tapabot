@@ -15,10 +15,19 @@ client.on('message', message =>{
         sendReply(message, "tapabotたぱ");
         return;
     }
-    console.log(message)
-    let text = "たぱ";
-    sendMsg(message.channel.id, text);
-    return;
+    let tok = message.content.split("$")
+    if(tok.length == 2) {
+        console.log(message.content)
+        let text = "たぱ";
+        sendMsg(message.channel.id, tok[1]+"の情報たぱ");
+        sendMsg(message.channel.id, "Ticker: "+tok[1]);
+        sendMsg(message.channel.id, "Price: xx.xx $");
+        sendMsg(message.channel.id, "Estimation: xx.xx $");
+        sendMsg(message.channel.id, "Price/Estimation Ratio: xx %");
+        return;
+    }
+    sendMsg(message.channel.id, "よく分からないたぱ")
+    return
 });
 
 if(process.env.DISCORD_BOT_TOKEN == undefined){
