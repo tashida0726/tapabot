@@ -12,8 +12,18 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-app.post("/data", (req, res) => {
-    console.log(req);
+var stocks = {
+    "AMZN" : {
+        "price" : 100
+    }
+}
+var updatedTime = Date();
+
+app.post("/stocks", (req, res) => {
+    stocks = req.body;
+    updatedTime = Date();
+    console.log(updatedTime.toString()+" price="+stocks["AMZN"]["price"])
+
     res.send("OK")
 });
 
@@ -35,12 +45,13 @@ client.on('message', message =>{
     let tok = message.content.split("$")
     if(tok.length == 2) {
         let ticker = tok[1].toUpperCase()
-        sendMsg(message.channel.id, "語る会銘柄["+ticker+"]たぱ");
-        sendMsg(message.channel.id, "ティッカー: "+ticker);
-        sendMsg(message.channel.id, "現在値($): 3401.46");
-        sendMsg(message.channel.id, "見込み値($): 5312.50");
-        sendMsg(message.channel.id, "乖離率(%): 64.0");
-        sendMsg(message.channel.id, "AWS プライム 通販 起業家オーナー◎ 売り上げ9倍 営利 5%");
+        let msg = "語る会銘柄["+ticker+"]について語るたぱ\n"
+        msg += "ティッカー:\t"+ticker+"\n"
+        msg += "現在値($):\t3401.46\n"
+        msg += "見込み値($):\t5312.50\n"
+        msg += "乖離率(%):\t64.0\n"
+        msg += "AWS プライム 通販 起業家オーナー◎ 売り上げ9倍 営利 5%"
+        sendMsg(message.channel.id, msg);
         return;
     }
     sendMsg(message.channel.id, "よく分からないたぱ")
