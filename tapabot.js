@@ -1,13 +1,19 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
 
 const app = express();
 
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+app.use(bodyParser.json());
+
 app.post("/data", (req, res) => {
-    const data = JSON.parse(req.body);
-    console.log(data);
+    console.log(req);
     res.send("OK")
 });
 
