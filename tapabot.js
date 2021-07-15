@@ -1,6 +1,17 @@
+const express = require('express');
 const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
+
+const app = express();
+
+app.post("/data", (req, res) => {
+    const data = JSON.parse(req.body);
+    console.log(data);
+    res.send("OK")
+});
+
+app.listen(8080)
 
 client.on('ready', message =>{
     console.log('Bot Ready!!');
