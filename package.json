@@ -11,10 +11,11 @@
     "url": "github.com:tashida0726/tapabot.git"
   },
   "dependencies": {
+    "body-parser": "^1.15.2",
     "discord.js": "^11.6.4",
     "express": "^4.17.1",
     "querystring": "^0.2.0",
-    "body-parser": "^1.15.2"
+    "winston": "^3.2.1"
   },
   "author": "Takashi Ashida",
   "license": "ISC"
