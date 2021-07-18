@@ -81,9 +81,9 @@ function handleCommand(command) {
         ret = true
         handleSummaryCommand(process.env.TAPABOT_ALT_CHANNEL)
     } else if(command.substr(0,1) == "$") {
-        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, ticker)
+        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, command.substr(1))
     } else if(command.substr(0,1) == ">") {
-        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, ticker)
+        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, command.substr(1))
     } 
 
     if(! ret) {
@@ -112,6 +112,7 @@ function handleHelpCommand() {
 }
 
 function handleSummaryCommand(channel) {
+    var msg = ""
     msg += "全ての語る会銘柄について簡単に語るたぱ\n"
     msg += "ティッカー/現在値/見込み値/乖離率\n"
     for(var key in stocks) {
@@ -124,7 +125,7 @@ function handleSummaryCommand(channel) {
 function handleTickerCommand(channel, ticker) {
     if(ticker in stocks) {
         var stock = stocks[ticker]
-        let msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
+        var msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
         msg += stock["name"]+"\n"
         msg += "現在値($): "+stock["price"]+"\n"
         msg += "見込み値($): "+stock["expected"]+"\n"
