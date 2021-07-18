@@ -83,7 +83,7 @@ function handleCommand(command) {
     } else if(command.substr(0,1) == "$") {
         ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, command.substr(1))
     } else if(command.substr(0,1) == ">") {
-        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, command.substr(1))
+        ret = handleTickerCommand(process.env.TAPABOT_ALT_CHANNEL, command.substr(1))
     } 
 
     if(! ret) {
@@ -117,7 +117,7 @@ function handleSummaryCommand(channel) {
     msg += "ティッカー/現在値/見込み値/乖離率\n"
     for(var key in stocks) {
         var stock = stocks[key]
-        msg += "\n"+key+"/"+stock["price"]+"/"+stock["expected"]+"/"+stock["ratio"]
+        msg += "\n"+key.toUpperCase()+"/"+stock["price"]+"/"+stock["expected"]+"/"+Math.round(stock["ratio"]*1000)/100
     }
     sendMsg(channel, msg)
 }
@@ -127,9 +127,9 @@ function handleTickerCommand(channel, ticker) {
         var stock = stocks[ticker]
         var msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
         msg += stock["name"]+"\n"
-        msg += "現在値($): "+stock["price"]+"\n"
-        msg += "見込み値($): "+stock["expected"]+"\n"
-        msg += "乖離率(%): "+stock["ratio"]+"\n"
+        msg += "現在値[$]: "+stock["price"]+"\n"
+        msg += "見込み値[$]: "+stock["expected"]+"\n"
+        msg += "乖離率[%]: "+Math.round(stock["ratio"]*10000)/100+"\n"
         msg += stock["comment"]+"\n"
         msg += "[Chart]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
         sendMsg(channel, msg)
