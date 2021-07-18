@@ -1,6 +1,5 @@
 const winston = require('winston')
 const express = require('express');
-const bodyParser = require('body-parser');
 const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
@@ -12,29 +11,46 @@ const logger = winston.createLogger({
     level: 'info',
     format: format.combine(
         format.timestamp(),
-        format.cli(),
+        format.simple(),
         format.printf(info => `${info.timestamp} ${info.level} ${info.message}`)
     ),
     transports: [
+        new winston.transports.Console({level: 'info'}),
         new winston.transports.File({filename: '/var/log/tapabot.log', level: 'info'})
     ]
 });
 
 const app = express();
-app.use(bodyParser.urlencoded({
+app.use(express.urlencoded({
     extended: true
 }));
-app.use(bodyParser.json());
+app.use(express.json());
 app.post("/stocks", (req, res) => {
     logger.info('New stocks info arrived.')
     stocks = req.body;
+    utime = Date();
 
     res.send("OK")
 });
 app.listen(8080)
 
+if(process.env.DISCORD_BOT_TOKEN == undefined){
+    console.log('DISCORD_BOT_TOKEN not defined');
+    process.exit(0);
+}
+
+if(process.env.TAPABOT_CMD_CHANNEL == undefined){
+    console.log('TAPABOT_CMD_CHANNEL not defined');
+    process.exit(0);
+}
+
+if(process.env.TAPABOT_ALT_CHANNEL == undefined){
+    console.log('TAPABOT_ALT_CHANNEL not defined');
+    process.exit(0);
+}
+
 client.on('ready', message =>{
-    console.log('Bot Ready!!');
+    logger.info('Bot ready!')
     client.user.setPresence({ activity: { name: '語る会銘柄' } });
 });
 
@@ -42,34 +58,89 @@ client.on('message', message =>{
     if (message.author.id == client.user.id){
         return;
     }
-    if (message.mentions.members.has(client.user.id)) {
-        console.log("Yes")
-    } else {
-        console.log("No")
+    if(message.channel.id == process.env.TAPABOT_CMD_CHANNEL) {
+        var commands =  message.content.split(" ")
+        for( var i = 0, len=commands.length; i < len; i++ ) {
+            handleCommand(commands[i])
+        }
     }
-    console.log(message.member)
-    let tok = message.content.split("$")
-    console.log(client.user.id)
-    console.log(tok[0])
-    if(tok.length == 2) {
-        let ticker = tok[1].toUpperCase()
-        let msg = "語る会銘柄["+ticker+"]について語るたぱ\n"
-        msg += "ティッカー:\t"+ticker+"\n"
-        msg += "現在値($):\t3401.46\n"
-        msg += "見込み値($):\t5312.50\n"
-        msg += "乖離率(%):\t64.0\n"
-        msg += "AWS プライム 通販 起業家オーナー◎ 売り上げ9倍 営利 5%\n"
-        msg += "[Chart]https://finance.yahoo.com/quote/"+ticker+"/chart"
-        sendMsg(message.channel.id, msg);
-        return;
-    }
-    sendMsg(message.channel.id, "よく分からないたぱ")
+
     return
 });
 
-if(process.env.DISCORD_BOT_TOKEN == undefined){
-    console.log('DISCORD_BOT_TOKEN not defined');
-    process.exit(0);
+function handleCommand(command) {
+    var ret = false
+    command.toLowerCase()
+    if( command == "help" ) {
+        ret = true
+        handleHelpCommand()
+    } else if(command == "$$") {
+        ret = true
+        handleSummaryCommand(process.env.TAPABOT_CMD_CHANNEL)
+    } else if(command == ">>") {
+        ret = true
+        handleSummaryCommand(process.env.TAPABOT_ALT_CHANNEL)
+    } else if(command.substr(0,1) == "$") {
+        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, ticker)
+    } else if(command.substr(0,1) == ">") {
+        ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, ticker)
+    } 
+
+    if(! ret) {
+        handleUnknownCommand(command)
+    }
+}
+
+function handleHelpCommand() {
+    var msg = ""
+    msg += "語る会のtapabotたぱ\n"
+    msg += "\n"
+    msg += "1. このチャネルに$<ticker>と語る会銘柄のtickerを送るとその銘柄について語るたぱ\n"
+    msg += "例） $amzn ... アマゾンの銘柄について語る\n"
+    msg += "2. $の代わりに>をtickerコードにつけると本丸で語るたぱ\n"
+    msg += "例） >amzn ... アマゾンの銘柄について本丸で語る\n"
+    msg += "3. $$と送ると全ての語る会銘柄について簡単に語るたぱ\n"
+    msg += "4. >>と送ると全ての語る会銘柄について本丸で簡単に語るたぱ\n"
+    msg += "5. $amzn $vzという風に二つ以上の銘柄について語ることもできるたぱ\n"
+    msg += "\n"
+    msg += "（注意）現在値などはGoogle Financeから引いて来ているけど\n"
+    msg += "タイムラグがあるしシステムに不具合もあるかもしれないので\n"
+    msg += "売買する前に必ず証券会社などで確認して欲しいたぱ\n"
+    msg += "\n"
+    msg += "©︎ちゃちゃまる 2021"
+    sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
+}
+
+function handleSummaryCommand(channel) {
+    msg += "全ての語る会銘柄について簡単に語るたぱ\n"
+    msg += "ティッカー/現在値/見込み値/乖離率\n"
+    for(var key in stocks) {
+        var stock = stocks[key]
+        msg += "\n"+key+"/"+stock["price"]+"/"+stock["expected"]+"/"+stock["ratio"]
+    }
+    sendMsg(channel, msg)
+}
+
+function handleTickerCommand(channel, ticker) {
+    if(ticker in stocks) {
+        var stock = stocks[ticker]
+        let msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
+        msg += stock["name"]+"\n"
+        msg += "現在値($): "+stock["price"]+"\n"
+        msg += "見込み値($): "+stock["expected"]+"\n"
+        msg += "乖離率(%): "+stock["ratio"]+"\n"
+        msg += stock["comment"]+"\n"
+        msg += "[Chart]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
+        sendMsg(channel, msg)
+        return true
+    }
+
+    return false
+}
+
+function handleUnknownCommand(command) {
+    var msg = command + "... よく分からないたぱ"
+    sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
 client.login( process.env.DISCORD_BOT_TOKEN );
