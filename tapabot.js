@@ -7,10 +7,15 @@ const client = new discord.Client();
 var utime = Date();
 
 const format = winston.format
+
+const timezoned = () => {
+    return new Date().toLocaleString();
+}
+
 const logger = winston.createLogger({
     level: 'info',
     format: format.combine(
-        format.timestamp(),
+        format.timestamp({ format: timezoned }),
         format.simple(),
         format.printf(info => `${info.timestamp} ${info.level} ${info.message}`)
     ),
@@ -94,7 +99,6 @@ function handleCommand(command) {
 function handleHelpCommand() {
     var msg = ""
     msg += "語る会のtapabotたぱ\n"
-    msg += "\n"
     msg += "1. このチャネルに$<ticker>と語る会銘柄のtickerを送るとその銘柄について語るたぱ\n"
     msg += "例） $amzn ... アマゾンの銘柄について語る\n"
     msg += "2. $の代わりに>をtickerコードにつけると本丸で語るたぱ\n"
@@ -102,12 +106,10 @@ function handleHelpCommand() {
     msg += "3. $$と送ると全ての語る会銘柄について簡単に語るたぱ\n"
     msg += "4. >>と送ると全ての語る会銘柄について本丸で簡単に語るたぱ\n"
     msg += "5. $amzn $googという風に二つ以上の銘柄について語ることもできるたぱ\n"
-    msg += "\n"
     msg += "（注意）\n"
     msg += "現在値などはGoogle Financeから引いて来ているけど\n"
     msg += "タイムラグがあるしシステムに不具合もあるかもしれないので\n"
     msg += "売買する前に必ず証券会社などで確認して欲しいたぱ\n"
-    msg += "\n"
     msg += "©︎ちゃちゃまる 2021"
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
@@ -115,7 +117,6 @@ function handleHelpCommand() {
 function handleSummaryCommand(channel) {
     var msg = ""
     msg += "全ての語る会銘柄について簡単に語るたぱ\n"
-    msg += "\n"
     msg += "ティッカー/現在値[$]/見込み値[$]/乖離率[%]"
     for(var key in stocks) {
         var stock = stocks[key]
@@ -128,8 +129,7 @@ function handleTickerCommand(channel, ticker) {
     if(ticker in stocks) {
         var stock = stocks[ticker]
         var msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
-        msg += "\n"
-        msg += stock["name"]+"\n"
+        msg += "**"+stock["name"]+"**\n"
         msg += "現在値[$]: "+stock["price"]+"\n"
         msg += "見込み値[$]: "+stock["expected"]+"\n"
         msg += "乖離率[%]: "+Math.round(stock["ratio"]*10000)/100+"\n"
