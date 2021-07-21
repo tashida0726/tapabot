@@ -25,6 +25,8 @@ const logger = winston.createLogger({
     ]
 });
 
+let stocks = {}
+
 const app = express();
 app.use(express.urlencoded({
     extended: true
@@ -117,11 +119,13 @@ function handleHelpCommand() {
 function handleSummaryCommand(channel) {
     var msg = ""
     msg += "全ての語る会銘柄について簡単に語るたぱ\n"
+    msg += "```\n"
     msg += "ティッカー/現在値[$]/見込み値[$]/乖離率[%]"
     for(var key in stocks) {
         var stock = stocks[key]
         msg += "\n"+key.toUpperCase()+"/"+stock["price"]+"/"+stock["expected"]+"/"+Math.round(stock["ratio"]*10000)/100
     }
+    msg += "```"
     sendMsg(channel, msg)
 }
 
@@ -130,11 +134,13 @@ function handleTickerCommand(channel, ticker) {
         var stock = stocks[ticker]
         var msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
         msg += "**"+stock["name"]+"**\n"
-        msg += "現在値[$]: "+stock["price"]+"\n"
-        msg += "見込み値[$]: "+stock["expected"]+"\n"
-        msg += "乖離率[%]: "+Math.round(stock["ratio"]*10000)/100+"\n"
         msg += stock["comment"]+"\n"
-        msg += "[Chart]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
+        msg += "```\n"
+        msg += "現在値[$]: 　"+stock["price"]+"\n"
+        msg += "見込み値[$]: "+stock["expected"]+"\n"
+        msg += "乖離率[%]: 　"+Math.round(stock["ratio"]*10000)/100+"\n"
+        msg += "```\n"
+        msg += "[Yahoo!Financeチャート](https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart)"
         sendMsg(channel, msg)
         return true
     }
