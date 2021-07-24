@@ -152,6 +152,11 @@ function handleSummaryCommand(channel) {
     msg += padSpacesToLeft("Price[$]", 12)
     msg += padSpacesToLeft("Est[$]", 12)
     msg += padSpacesToLeft("Ratio[%]", 12)
+    msg += "\n"
+    msg += padSpacesToLeft("------", 12)
+    msg += padSpacesToLeft("--------", 12)
+    msg += padSpacesToLeft("------", 12)
+    msg += padSpacesToLeft("--------", 12)
     for(var key in stocks) {
         var stock = stocks[key]
         msg += "\n"
