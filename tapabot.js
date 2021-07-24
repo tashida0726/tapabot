@@ -65,9 +65,15 @@ client.on('message', message =>{
     if (message.author.id == client.user.id){
         return;
     }
+    if(!message.mentions.users.has(client.user.id)) {
+        return;       
+    }
     if(message.channel.id == process.env.TAPABOT_CMD_CHANNEL) {
         var commands =  message.content.split(" ")
-        for( var i = 0, len=commands.length; i < len; i++ ) {
+        for( var i = 1, len=commands.length; i < len; i++ ) {
+            if(commands[i] == "") {
+                continue
+            }
             handleCommand(commands[i])
         }
     }
@@ -100,30 +106,59 @@ function handleCommand(command) {
 
 function handleHelpCommand() {
     var msg = ""
-    msg += "語る会のtapabotたぱ\n"
-    msg += "1. このチャネルに$<ticker>と語る会銘柄のtickerを送るとその銘柄について語るたぱ\n"
+    msg += "語る会のtapabotです。\n"
+    msg += "1. このチャネルに$<ticker>と語る会銘柄のtickerを送るとその銘柄について語ります。\n"
     msg += "例） $amzn ... アマゾンの銘柄について語る\n"
-    msg += "2. $の代わりに>をtickerコードにつけると本丸で語るたぱ\n"
+    msg += "2. $の代わりに>をtickerコードにつけると本丸で語ります。\n"
     msg += "例） >amzn ... アマゾンの銘柄について本丸で語る\n"
-    msg += "3. $$と送ると全ての語る会銘柄について簡単に語るたぱ\n"
-    msg += "4. >>と送ると全ての語る会銘柄について本丸で簡単に語るたぱ\n"
-    msg += "5. $amzn $googという風に二つ以上の銘柄について語ることもできるたぱ\n"
-    msg += "（注意）\n"
-    msg += "現在値などはGoogle Financeから引いて来ているけど\n"
-    msg += "タイムラグがあるしシステムに不具合もあるかもしれないので\n"
-    msg += "売買する前に必ず証券会社などで確認して欲しいたぱ\n"
+    msg += "3. $$と送ると全ての語る会銘柄について簡単に語ります。\n"
+    msg += "4. >>と送ると全ての語る会銘柄について本丸で簡単に語ります。\n"
+    msg += "5. $amzn $googという風に二つ以上の銘柄について語ることもできます。\n"
+    msg += "\n"
+    msg += "[注意]\n"
+    msg += "現在値などはGoogle Financeから引いて来ていますがタイムラグがあります。\n"
+    msg += "またシステムに不具合もあり得ますので売買する前に必ず証券会社などで確認してください。\n"
+    msg += "\n"
     msg += "©︎ちゃちゃまる 2021"
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
+function padSpacesToLeft(s, l) {
+    var len = 0
+    for (var i = 0; i < s.length; i++) {
+        if(s[i].match(/[ -~]/) ) {
+            len += 1;
+        } else {
+            len += 2;
+        }            
+    }
+
+    if( len > l ) {
+        return s.split(0, l)
+    } else {
+        var ret = ""
+        for(var i = 0; i < l-len; i++) {
+            ret += " "
+        }
+        return ret+s
+    }
+}
+
 function handleSummaryCommand(channel) {
     var msg = ""
-    msg += "全ての語る会銘柄について簡単に語るたぱ\n"
-    msg += "```\n"
-    msg += "ティッカー/現在値[$]/見込み値[$]/乖離率[%]"
+    msg += "```"
+    msg += "\n"
+    msg += padSpacesToLeft("ティッカー", 12)
+    msg += padSpacesToLeft("現在値[$]", 12)
+    msg += padSpacesToLeft("見込み値[$]", 12)
+    msg += padSpacesToLeft("乖離率[%]", 12)
     for(var key in stocks) {
         var stock = stocks[key]
-        msg += "\n"+key.toUpperCase()+"/"+stock["price"]+"/"+stock["expected"]+"/"+Math.round(stock["ratio"]*10000)/100
+        msg += "\n"
+        msg += padSpacesToLeft(key.toUpperCase(), 12)
+        msg += padSpacesToLeft(""+stock["price"], 12)
+        msg += padSpacesToLeft(""+stock["expected"], 12)
+        msg += padSpacesToLeft(""+Math.round(stock["ratio"]*10000)/100, 12)
     }
     msg += "```"
     sendMsg(channel, msg)
@@ -132,7 +167,6 @@ function handleSummaryCommand(channel) {
 function handleTickerCommand(channel, ticker) {
     if(ticker in stocks) {
         var stock = stocks[ticker]
-        var msg = "語る会銘柄["+ticker.toUpperCase()+"]について語るたぱ\n"
         msg += "**"+stock["name"]+"**\n"
         msg += stock["comment"]+"\n"
         msg += "```\n"
@@ -140,7 +174,7 @@ function handleTickerCommand(channel, ticker) {
         msg += "見込み値[$]: "+stock["expected"]+"\n"
         msg += "乖離率[%]: 　"+Math.round(stock["ratio"]*10000)/100+"\n"
         msg += "```\n"
-        msg += "[Yahoo!Financeチャート](https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart)"
+        msg += "[Yahoo!Financeチャート]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
         sendMsg(channel, msg)
         return true
     }
@@ -149,7 +183,7 @@ function handleTickerCommand(channel, ticker) {
 }
 
 function handleUnknownCommand(command) {
-    var msg = command + "... よく分からないたぱ"
+    var msg = command + " Unknown command"
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
