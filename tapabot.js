@@ -148,10 +148,10 @@ function handleSummaryCommand(channel) {
     var msg = ""
     msg += "```"
     msg += "\n"
-    msg += padSpacesToLeft("ティッカー", 12)
-    msg += padSpacesToLeft("現在値[$]", 12)
-    msg += padSpacesToLeft("見込み値[$]", 12)
-    msg += padSpacesToLeft("乖離率[%]", 12)
+    msg += padSpacesToLeft("Ticker", 12)
+    msg += padSpacesToLeft("Price[$]", 12)
+    msg += padSpacesToLeft("Est[$]", 12)
+    msg += padSpacesToLeft("Ratio[%]", 12)
     for(var key in stocks) {
         var stock = stocks[key]
         msg += "\n"
