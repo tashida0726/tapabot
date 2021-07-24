@@ -87,6 +87,9 @@ function handleCommand(command) {
     if( command == "help" ) {
         ret = true
         handleHelpCommand()
+    } else if(command == "debug" ) {
+        ret = true
+        handleDebugCommand()
     } else if(command == "$$") {
         ret = true
         handleSummaryCommand(process.env.TAPABOT_CMD_CHANNEL)
@@ -120,6 +123,12 @@ function handleHelpCommand() {
     msg += "またシステムに不具合もあり得ますので売買する前に必ず証券会社などで確認してください。\n"
     msg += "\n"
     msg += "©︎ちゃちゃまる 2021"
+    sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
+}
+
+function handleDebugCommand() {
+    var msg = ""
+    msg += "Last update from Google spread sheet on " + utime.toLocaleString();
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
@@ -170,6 +179,7 @@ function handleSummaryCommand(channel) {
 }
 
 function handleTickerCommand(channel, ticker) {
+    var msg = ""
     if(ticker in stocks) {
         var stock = stocks[ticker]
         msg += "**"+stock["name"]+"**\n"
