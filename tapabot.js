@@ -83,7 +83,7 @@ client.on('message', message =>{
 
 function handleCommand(command) {
     var ret = false
-    command.toLowerCase()
+    command = command.toLowerCase()
     if( command == "help" ) {
         ret = true
         handleHelpCommand()
@@ -110,13 +110,29 @@ function handleCommand(command) {
 function handleHelpCommand() {
     var msg = ""
     msg += "語る会のtapabotです。\n"
+    msg += "\n"
+    msg += "このチャンネル内でtapabotに以下のコマンドを送ることで語る会銘柄を語らせることができます。\n"
+    msg += "tapabotへコマンドを送る場合は必ず@tapabotと宛先にtapabotを指定してください。\n"
+    msg += "\n"
     msg += "1. このチャネルに$<ticker>と語る会銘柄のtickerを送るとその銘柄について語ります。\n"
-    msg += "例） $amzn ... アマゾンの銘柄について語る\n"
+    msg += "例）アマゾンについて語る\n"
+    msg += "@tapabot $amzn\n"
+    msg += "\n"
     msg += "2. $の代わりに>をtickerコードにつけると本丸で語ります。\n"
-    msg += "例） >amzn ... アマゾンの銘柄について本丸で語る\n"
+    msg += "例）アマゾンについて本丸で語る\n"
+    msg += "@tapabot >amzn\n"
+    msg += "\n"
     msg += "3. $$と送ると全ての語る会銘柄について簡単に語ります。\n"
+    msg += "例）全ての語る会銘柄について簡単に語る\n"
+    msg += "@tapabot $$ \n"
+    msg += "\n"
     msg += "4. >>と送ると全ての語る会銘柄について本丸で簡単に語ります。\n"
-    msg += "5. $amzn $googという風に二つ以上の銘柄について語ることもできます。\n"
+    msg += "例）全ての語る会銘柄について本丸で簡単に語る\n"
+    msg += "@tapabot >>\n"
+    msg += "\n"
+    msg += "5. $amzn $googというように二つ以上の銘柄について語ることもできます。\n"
+    msg += "例）アマゾンとグーグルについて語る\n"
+    msg += "@tapabot $amzn $goog\n"
     msg += "\n"
     msg += "[注意]\n"
     msg += "現在値などはGoogle Financeから引いて来ていますがタイムラグがあります。\n"
@@ -190,15 +206,16 @@ function handleTickerCommand(channel, ticker) {
         msg += "乖離率[%]: 　"+Math.round(stock["ratio"]*10000)/100+"\n"
         msg += "```\n"
         msg += "[Yahoo!Financeチャート]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
-        sendMsg(channel, msg)
-        return true
+    } else {
+        msg += "["+ticker+"]は語る会銘柄ではありません。もう一度tickerを確認してください。"
     }
+    sendMsg(channel, msg)
 
-    return false
+    return true
 }
 
 function handleUnknownCommand(command) {
-    var msg = command + " Unknown command"
+    var msg = command + "： tapabotへの指示としては無効です"
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
