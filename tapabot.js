@@ -175,24 +175,18 @@ function handleSummaryCommand(channel) {
     msg += "\n"
     msg += padSpacesToLeft("Ticker", 12)
     msg += padSpacesToLeft("Price[$]", 12)
-    msg += padSpacesToLeft("Change[$]", 12)
-    msg += padSpacesToLeft("Change[%]", 12)
     msg += padSpacesToLeft("Est[$]", 12)
-    msg += padSpacesToLeft("Est[%]", 12)
+    msg += padSpacesToLeft("Ratio[%]", 12)
     msg += "\n"
     msg += padSpacesToLeft("------", 12)
     msg += padSpacesToLeft("--------", 12)
-    msg += padSpacesToLeft("---------", 12)
-    msg += padSpacesToLeft("---------", 12)
     msg += padSpacesToLeft("------", 12)
-    msg += padSpacesToLeft("------", 12)
+    msg += padSpacesToLeft("--------", 12)
     for(var key in stocks) {
         var stock = stocks[key]
         msg += "\n"
         msg += padSpacesToLeft(key.toUpperCase(), 12)
         msg += padSpacesToLeft(""+stock["price"], 12)
-        msg += padSpacesToLeft(""+stock["change"], 12)
-        msg += padSpacesToLeft(""+stock["change_ratio"], 12)
         msg += padSpacesToLeft(""+stock["expected"], 12)
         msg += padSpacesToLeft(""+Math.round(stock["expected_ratio"]*10000)/100, 12)
     }
