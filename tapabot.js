@@ -175,20 +175,26 @@ function handleSummaryCommand(channel) {
     msg += "\n"
     msg += padSpacesToLeft("Ticker", 12)
     msg += padSpacesToLeft("Price[$]", 12)
+    msg += padSpacesToLeft("Change[$]", 12)
+    msg += padSpacesToLeft("Change[%]", 12)
     msg += padSpacesToLeft("Est[$]", 12)
-    msg += padSpacesToLeft("Ratio[%]", 12)
+    msg += padSpacesToLeft("Est[%]", 12)
     msg += "\n"
     msg += padSpacesToLeft("------", 12)
     msg += padSpacesToLeft("--------", 12)
+    msg += padSpacesToLeft("---------", 12)
+    msg += padSpacesToLeft("---------", 12)
     msg += padSpacesToLeft("------", 12)
-    msg += padSpacesToLeft("--------", 12)
+    msg += padSpacesToLeft("------", 12)
     for(var key in stocks) {
         var stock = stocks[key]
         msg += "\n"
         msg += padSpacesToLeft(key.toUpperCase(), 12)
         msg += padSpacesToLeft(""+stock["price"], 12)
+        msg += padSpacesToLeft(""+stock["change"], 12)
+        msg += padSpacesToLeft(""+stock["change_ratio"], 12)
         msg += padSpacesToLeft(""+stock["expected"], 12)
-        msg += padSpacesToLeft(""+Math.round(stock["ratio"]*10000)/100, 12)
+        msg += padSpacesToLeft(""+Math.round(stock["expected_ratio"]*10000)/100, 12)
     }
     msg += "```"
     sendMsg(channel, msg)
@@ -202,8 +208,10 @@ function handleTickerCommand(channel, ticker) {
         msg += stock["comment"]+"\n"
         msg += "```\n"
         msg += "現在値[$]: 　"+stock["price"]+"\n"
+        msg += "前日比[$]: 　"+stock["change"]+"\n"
+        msg += "前日比[%]: 　"+stock["change_ratio"]+"\n"
         msg += "見込み値[$]: "+stock["expected"]+"\n"
-        msg += "乖離率[%]: 　"+Math.round(stock["ratio"]*10000)/100+"\n"
+        msg += "乖離率[%]: 　"+Math.round(stock["expected_ratio"]*10000)/100+"\n"
         msg += "```\n"
         msg += "[Yahoo!Financeチャート]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
     } else {
