@@ -25,21 +25,10 @@ const logger = winston.createLogger({
     ]
 });
 
-let stocks = {}
-
-const app = express();
-app.use(express.urlencoded({
-    extended: true
-}));
-app.use(express.json());
-app.post("/stocks", (req, res) => {
-    logger.info('New stocks info arrived.')
-    stocks = req.body;
-    utime = Date();
-
-    res.send("OK")
-});
-app.listen(8080)
+if(process.env.REST_PORT == undefined){
+    console.log('REST_PORT not defined');
+    process.exit(0);
+}
 
 if(process.env.DISCORD_BOT_TOKEN == undefined){
     console.log('DISCORD_BOT_TOKEN not defined');
@@ -55,6 +44,22 @@ if(process.env.TAPABOT_ALT_CHANNEL == undefined){
     console.log('TAPABOT_ALT_CHANNEL not defined');
     process.exit(0);
 }
+
+let stocks = {}
+
+const app = express();
+app.use(express.urlencoded({
+    extended: true
+}));
+app.use(express.json());
+app.post("/stocks", (req, res) => {
+    logger.info('New stocks info arrived.')
+    stocks = req.body;
+    utime = Date();
+
+    res.send("OK")
+});
+app.listen(process.env.REST_PORT)
 
 client.on('ready', message =>{
     logger.info('Bot ready!')
