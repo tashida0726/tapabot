@@ -1,4 +1,5 @@
 const winston = require('winston')
+
 const express = require('express');
 const querystring = require('querystring');
 const discord = require('discord.js');
@@ -63,12 +64,13 @@ app.post("/report", (req, res) => {
     logger.info('Report request arrived.')
     var r = req.body
     var tradeTime = stocks["sp500"]["tradeTime"]
-    var now = Date().now()
+    var now = Date.now()
     if( r["force"] || (now-tradeTime)/1000/60/60 < 24 ) {
         handleReportRequest();
     } else {
         logger.info('Report request ignored.')
     }
+    res.send("OK");
 });
 
 app.listen(process.env.REST_PORT)
@@ -118,7 +120,7 @@ function getTop3Stocks(key, top) {
             } else {
                 return -1
             }    
-        });    
+        }).slice(0,3);    
     } else {
         list = list.sort( (a,b) => {
             if( a["value"] < b["value"] ) {
@@ -126,8 +128,9 @@ function getTop3Stocks(key, top) {
             } else {
                 return -1
             }    
-        });    
+        }).slice(0,3);    
     }
+    return list;
 }
 
 function handleReportRequest() {
@@ -139,7 +142,7 @@ function handleReportRequest() {
     console.log(top3Change)
     console.log(worst3Change)
     console.log(top3Expected)
-    console.log(top3Expected)
+    console.log(worst3Expected)
 }
 
 function handleCommand(command) {
