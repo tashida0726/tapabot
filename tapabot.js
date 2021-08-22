@@ -136,7 +136,7 @@ function getTop3Stocks(key, top) {
 
     if( top ) {
         list = list.sort( (a,b) => {
-            if( a["value"] > b["value"] ) {
+            if( a["value"] < b["value"] ) {
                 return 1
             } else {
                 return -1
@@ -144,7 +144,7 @@ function getTop3Stocks(key, top) {
         }).slice(0,3);    
     } else {
         list = list.sort( (a,b) => {
-            if( a["value"] < b["value"] ) {
+            if( a["value"] > b["value"] ) {
                 return 1
             } else {
                 return -1
@@ -161,9 +161,10 @@ function getTop3Summary(list) {
     summary += "\n"
     for(var i = 0; i < list.length; i++) {
         summary += padSpacesToLeft(list[i]["ticker"], 8)
-        summary += padSpacesToLeft(""+Math.round(list[i]["value"]*10000)/100, 12)
+        summary += padSpacesToLeft(""+list[i]["value"], 12)
         summary += "\n"
     }
+    return summary;
 }
 
 function handleReportRequest() {
@@ -171,6 +172,11 @@ function handleReportRequest() {
     var worst3Change = getTop3Stocks("change_ratio", false);
     var top3Expected = getTop3Stocks("expected_ratio", true);
     var worst3Expected = getTop3Stocks("expected_ratio", false);
+
+    for( var i = 0; i< 3; i++) {
+        top3Expected[i]["value"] = Math.round(top3Expected[i]["value"]*10000/100);
+	worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000/100);
+    }
 
     var msg = "```\n"
     msg += "Change Ratio Top 3\n"
