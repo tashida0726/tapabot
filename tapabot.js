@@ -121,6 +121,27 @@ function padSpacesToLeft(s, l) {
     }
 }
 
+function padSpacesToRight(s, l) {
+    var len = 0
+    for (var i = 0; i < s.length; i++) {
+        if(s[i].match(/[ -~]/) ) {
+            len += 1;
+        } else {
+            len += 2;
+        }            
+    }
+
+    if( len > l ) {
+        return s.split(0, l)
+    } else {
+        var ret = s
+        for(var i = 0; i < l-len; i++) {
+            ret += " "
+        }
+        return ret
+    }
+}
+
 function getTop3Stocks(key, top) {
     var list = []
 
@@ -129,7 +150,7 @@ function getTop3Stocks(key, top) {
         if( ticker == "sp500" ) {
             continue;
         }
-        item["ticker"]= ticker;
+        item["ticker"]= ticker.toUpperCase();
         item["value"] = stocks[ticker][key];
         list.push(item);
     }
@@ -156,12 +177,12 @@ function getTop3Stocks(key, top) {
 
 function getTop3Summary(list) {
     var summary = ""
-    summary += padSpacesToLeft("Ticker", 8)
-    summary += padSpacesToLeft("Ratio[%]", 12)
+    summary += padSpacesToRight("Ticker", 8)
+    summary += padSpacesToRight("Ratio[%]", 12)
     summary += "\n"
     for(var i = 0; i < list.length; i++) {
-        summary += padSpacesToLeft(list[i]["ticker"], 8)
-        summary += padSpacesToLeft(""+list[i]["value"], 12)
+        summary += padSpacesToRight(list[i]["ticker"], 8)
+        summary += padSpacesToRight(""+list[i]["value"], 12)
         summary += "\n"
     }
     return summary;
@@ -175,16 +196,19 @@ function handleReportRequest() {
 
     for( var i = 0; i< 3; i++) {
         top3Expected[i]["value"] = Math.round(top3Expected[i]["value"]*10000/100);
-	worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000/100);
+        worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000/100);
     }
 
     var msg = "```\n"
     msg += "Change Ratio Top 3\n"
     msg += getTop3Summary(top3Change);
+    msg += "\n"
     msg += "Change Ratio Worst 3\n"
     msg += getTop3Summary(worst3Change);
+    msg += "\n"
     msg += "Expected Ratio Top 3\n"
     msg += getTop3Summary(top3Expected);
+    msg += "\n"
     msg += "Expected Ratio Worst 3\n"
     msg += getTop3Summary(worst3Expected);
     msg += "```"
