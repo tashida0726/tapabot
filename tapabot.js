@@ -199,7 +199,8 @@ function handleReportRequest() {
         worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000/100);
     }
 
-    var msg = "```\n"
+    var msg = "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Expected Ratio）です"
+    msg +=  "```\n"
     msg += "Change Ratio Top 3\n"
     msg += getTop3Summary(top3Change);
     msg += "\n"
