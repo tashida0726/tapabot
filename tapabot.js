@@ -100,6 +100,27 @@ client.on('message', message =>{
     return
 });
 
+function padSpacesToLeft(s, l) {
+    var len = 0
+    for (var i = 0; i < s.length; i++) {
+        if(s[i].match(/[ -~]/) ) {
+            len += 1;
+        } else {
+            len += 2;
+        }            
+    }
+
+    if( len > l ) {
+        return s.split(0, l)
+    } else {
+        var ret = ""
+        for(var i = 0; i < l-len; i++) {
+            ret += " "
+        }
+        return ret+s
+    }
+}
+
 function getTop3Stocks(key, top) {
     var list = []
 
@@ -133,16 +154,36 @@ function getTop3Stocks(key, top) {
     return list;
 }
 
+function getTop3Summary(list) {
+    var summary = ""
+    summary += padSpacesToLeft("Ticker", 8)
+    summary += padSpacesToLeft("Ratio[%]", 12)
+    summary += "\n"
+    for(var i = 0; i < list.length; i++) {
+        summary += padSpacesToLeft(list[i]["ticker"], 8)
+        summary += padSpacesToLeft(""+Math.round(list[i]["value"]*10000)/100, 12)
+        summary += "\n"
+    }
+}
+
 function handleReportRequest() {
     var top3Change = getTop3Stocks("change_ratio", true);
     var worst3Change = getTop3Stocks("change_ratio", false);
     var top3Expected = getTop3Stocks("expected_ratio", true);
     var worst3Expected = getTop3Stocks("expected_ratio", false);
 
-    console.log(top3Change)
-    console.log(worst3Change)
-    console.log(top3Expected)
-    console.log(worst3Expected)
+    var msg = "```\n"
+    msg += "Change Ratio Top 3\n"
+    msg += getTop3Summary(top3Change);
+    msg += "Change Ratio Worst 3\n"
+    msg += getTop3Summary(worst3Change);
+    msg += "Expected Ratio Top 3\n"
+    msg += getTop3Summary(top3Expected);
+    msg += "Expected Ratio Worst 3\n"
+    msg += getTop3Summary(worst3Expected);
+    msg += "```"
+
+    sendMsg(process.env.TAPABOT_ALT_CHANNEL, msg)
 }
 
 function handleCommand(command) {
@@ -210,27 +251,6 @@ function handleDebugCommand() {
     var msg = ""
     msg += "Last update from Google spread sheet on " + utime.toLocaleString();
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
-}
-
-function padSpacesToLeft(s, l) {
-    var len = 0
-    for (var i = 0; i < s.length; i++) {
-        if(s[i].match(/[ -~]/) ) {
-            len += 1;
-        } else {
-            len += 2;
-        }            
-    }
-
-    if( len > l ) {
-        return s.split(0, l)
-    } else {
-        var ret = ""
-        for(var i = 0; i < l-len; i++) {
-            ret += " "
-        }
-        return ret+s
-    }
 }
 
 function handleSummaryCommand(channel) {
