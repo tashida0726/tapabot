@@ -59,6 +59,18 @@ app.post("/stocks", (req, res) => {
 
     res.send("OK")
 });
+app.post("/report", (req, res) => {
+    logger.info('Report request arrived.')
+    var r = req.body
+    var tradeTime = stocks["sp500"]["tradeTime"]
+    var now = Date().now()
+    if( r["force"] || (now-tradeTime)/1000/60/60 < 24 ) {
+        handleReportRequest();
+    } else {
+        logger.info('Report request ignored.')
+    }
+});
+
 app.listen(process.env.REST_PORT)
 
 client.on('ready', message =>{
@@ -85,6 +97,50 @@ client.on('message', message =>{
 
     return
 });
+
+function getTop3Stocks(key, top) {
+    var list = []
+
+    for(var ticker in stocks) {
+        var item = {}
+        if( ticker == "sp500" ) {
+            continue;
+        }
+        item["ticker"]= ticker;
+        item["value"] = stocks[ticker][key];
+        list.push(item);
+    }
+
+    if( top ) {
+        list = list.sort( (a,b) => {
+            if( a["value"] > b["value"] ) {
+                return 1
+            } else {
+                return -1
+            }    
+        });    
+    } else {
+        list = list.sort( (a,b) => {
+            if( a["value"] < b["value"] ) {
+                return 1
+            } else {
+                return -1
+            }    
+        });    
+    }
+}
+
+function handleReportRequest() {
+    var top3Change = getTop3Stocks("change_ratio", true);
+    var worst3Change = getTop3Stocks("change_ratio", false);
+    var top3Expected = getTop3Stocks("expected_ratio", true);
+    var worst3Expected = getTop3Stocks("expected_ratio", false);
+
+    console.log(top3Change)
+    console.log(worst3Change)
+    console.log(top3Expected)
+    console.log(top3Expected)
+}
 
 function handleCommand(command) {
     var ret = false
@@ -188,6 +244,9 @@ function handleSummaryCommand(channel) {
     msg += padSpacesToLeft("------", 12)
     msg += padSpacesToLeft("--------", 12)
     for(var key in stocks) {
+        if( key == "sp500" ) {
+            continue;
+        }
         var stock = stocks[key]
         msg += "\n"
         msg += padSpacesToLeft(key.toUpperCase(), 12)
@@ -201,7 +260,7 @@ function handleSummaryCommand(channel) {
 
 function handleTickerCommand(channel, ticker) {
     var msg = ""
-    if(ticker in stocks) {
+    if(ticker in stocks && ticker !== "sp500") {
         var stock = stocks[ticker]
         msg += "**"+stock["name"]+"**\n"
         msg += stock["comment"]+"\n"
