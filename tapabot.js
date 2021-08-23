@@ -3,6 +3,7 @@ const winston = require('winston')
 const express = require('express');
 const querystring = require('querystring');
 const discord = require('discord.js');
+const e = require('express');
 const client = new discord.Client();
 
 var utime = Date();
@@ -142,7 +143,7 @@ function padSpacesToRight(s, l) {
     }
 }
 
-function getTop3Stocks(key, top) {
+function sortStocks(key, asce) {
     var list = []
 
     for(var ticker in stocks) {
@@ -151,18 +152,22 @@ function getTop3Stocks(key, top) {
             continue;
         }
         item["ticker"]= ticker.toUpperCase();
-        item["value"] = stocks[ticker][key];
+        if( key == "ticker" ) {
+            item["value"] = ticker;
+        } else {
+            item["value"] = stocks[ticker][key];
+        }
         list.push(item);
     }
 
-    if( top ) {
+    if( asce ) {
         list = list.sort( (a,b) => {
             if( a["value"] < b["value"] ) {
                 return 1
             } else {
                 return -1
             }    
-        }).slice(0,3);    
+        });    
     } else {
         list = list.sort( (a,b) => {
             if( a["value"] > b["value"] ) {
@@ -170,8 +175,15 @@ function getTop3Stocks(key, top) {
             } else {
                 return -1
             }    
-        }).slice(0,3);    
+        });    
     }
+
+    return list;
+}
+
+function getTop3Stocks(key, top) {
+    var list = sortStocks(key, top);
+    list.slice(0, 3);
     return list;
 }
 
@@ -195,11 +207,11 @@ function handleReportRequest() {
     var worst3Expected = getTop3Stocks("expected_ratio", false);
 
     for( var i = 0; i< 3; i++) {
-        top3Expected[i]["value"] = Math.round(top3Expected[i]["value"]*10000/100);
-        worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000/100);
+        top3Expected[i]["value"] = Math.round(top3Expected[i]["value"]*10000)/100;
+        worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000)/100;
     }
 
-    var msg = "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Expected Ratio）です"
+    var msg = "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Estimated Ratio）です"
     msg +=  "```\n"
     msg += "Change Ratio Top 3\n"
     msg += getTop3Summary(top3Change);
@@ -207,10 +219,10 @@ function handleReportRequest() {
     msg += "Change Ratio Worst 3\n"
     msg += getTop3Summary(worst3Change);
     msg += "\n"
-    msg += "Expected Ratio Top 3\n"
+    msg += "Estimated Ratio Top 3\n"
     msg += getTop3Summary(top3Expected);
     msg += "\n"
-    msg += "Expected Ratio Worst 3\n"
+    msg += "Estimated Ratio Worst 3\n"
     msg += getTop3Summary(worst3Expected);
     msg += "```"
 
@@ -226,12 +238,10 @@ function handleCommand(command) {
     } else if(command == "debug" ) {
         ret = true
         handleDebugCommand()
-    } else if(command == "$$") {
-        ret = true
-        handleSummaryCommand(process.env.TAPABOT_CMD_CHANNEL)
-    } else if(command == ">>") {
-        ret = true
-        handleSummaryCommand(process.env.TAPABOT_ALT_CHANNEL)
+    } else if(command.substr(0,2) == "$$") {
+        ret = handleSummaryCommand(command, process.env.TAPABOT_CMD_CHANNEL)
+    } else if(command.substr(0,2) == ">>") {
+        ret = handleSummaryCommand(command, process.env.TAPABOT_ALT_CHANNEL)
     } else if(command.substr(0,1) == "$") {
         ret = handleTickerCommand(process.env.TAPABOT_CMD_CHANNEL, command.substr(1))
     } else if(command.substr(0,1) == ">") {
@@ -266,7 +276,13 @@ function handleHelpCommand() {
     msg += "例）全ての語る会銘柄について本丸で簡単に語る\n"
     msg += "@tapabot >>\n"
     msg += "\n"
-    msg += "5. $amzn $googというように二つ以上の銘柄について語ることもできます。\n"
+    msg += "5. $$や>>の後ろにカラム名と昇順・逆順を指定するとソートして表示します。\n"
+    msg += "カラム名： ticker/price/est/ratio\n"
+    msg += "昇順・逆順： asce/desce\n"
+    msg += "例）ratioを昇順で表示する\n"
+    msg += "@tapabot $$:ratio:asce\n"
+    msg += "\n"
+    msg += "6. $amzn $googというように二つ以上の銘柄について語ることもできます。\n"
     msg += "例）アマゾンとグーグルについて語る\n"
     msg += "@tapabot $amzn $goog\n"
     msg += "\n"
@@ -284,7 +300,48 @@ function handleDebugCommand() {
     sendMsg(process.env.TAPABOT_CMD_CHANNEL, msg)
 }
 
-function handleSummaryCommand(channel) {
+function getKeyFromCommandArg(arg) {
+    d = {
+        "ticker" : "ticker",
+        "price" : "price",
+        "est" : "expected",
+        "ratio" : "expected_ratio",
+    };
+
+    if( arg in d ) {
+        return d[arg];
+    } else {
+        return "";
+    }
+}
+
+function handleSummaryCommand(command, channel) {
+    var tokens = command.split(":");
+    var asce = true;
+    var key = ""
+    if( tokens.length == 1 ) {
+        // Nothing to do
+    } else if( tokens.legth == 2 ) {
+        key = getKeyFromCommandArg(tokens[1].toLowerCase());
+        if(key == "") {
+            return false;
+        }
+    } else if( tokens.legth == 3 ) {
+        key = getKeyFromCommandArg(tokens[1].toLowerCase());
+        if(key == "") {
+            return false;
+        }
+        if( tokens[2].toLowerCase() == "asce" ) {
+            asce = true;
+        } else if( tokens[2].toLowerCase() == "desce" ) {
+            asce = false
+        } else {
+            return false;
+        }
+    }
+
+    var list = sortStocks(key, asce);
+
     var msg = ""
     msg += "```"
     msg += "\n"
@@ -297,10 +354,8 @@ function handleSummaryCommand(channel) {
     msg += padSpacesToLeft("--------", 12)
     msg += padSpacesToLeft("------", 12)
     msg += padSpacesToLeft("--------", 12)
-    for(var key in stocks) {
-        if( key == "sp500" ) {
-            continue;
-        }
+    for(var item in list) {
+        var key = item["ticker"];
         var stock = stocks[key]
         msg += "\n"
         msg += padSpacesToLeft(key.toUpperCase(), 12)
