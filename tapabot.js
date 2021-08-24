@@ -64,7 +64,7 @@ app.post("/stocks", (req, res) => {
 app.post("/report", (req, res) => {
     logger.info('Report request arrived.')
     var r = req.body
-    var tradeTime = stocks["sp500"]["tradeTime"]
+    var tradeTime = stocks["sp500"]["utime"]
     var now = Date.now()
     if( r["force"] || (now-tradeTime)/1000/60/60 < 24 ) {
         handleReportRequest();
