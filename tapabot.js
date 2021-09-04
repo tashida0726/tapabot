@@ -185,8 +185,7 @@ function sortStocks(key, asce) {
 
 function getTop3Stocks(key, top) {
     var list = sortStocks(key, top);
-    list.slice(0, 3);
-    return list;
+    return list.slice(0, 3);
 }
 
 function getTop3Summary(list) {
@@ -195,7 +194,7 @@ function getTop3Summary(list) {
     summary += padSpacesToRight("Ratio[%]", 12)
     summary += "\n"
     for(var i = 0; i < list.length; i++) {
-        summary += padSpacesToRight(list[i]["ticker"], 8)
+        summary += padSpacesToRight(list[i]["ticker"].toUpperCase(), 8)
         summary += padSpacesToRight(""+list[i]["value"], 12)
         summary += "\n"
     }
@@ -323,12 +322,12 @@ function handleSummaryCommand(command, channel) {
     var key = ""
     if( tokens.length == 1 ) {
         // Nothing to do
-    } else if( tokens.legth == 2 ) {
+    } else if( tokens.length == 2 ) {
         key = getKeyFromCommandArg(tokens[1].toLowerCase());
         if(key == "") {
             return false;
         }
-    } else if( tokens.legth == 3 ) {
+    } else if( tokens.length == 3 ) {
         key = getKeyFromCommandArg(tokens[1].toLowerCase());
         if(key == "") {
             return false;
@@ -342,7 +341,20 @@ function handleSummaryCommand(command, channel) {
         }
     }
 
-    var list = sortStocks(key, asce);
+    var list = [];
+
+    if( key !== "" ) {
+        list = sortStocks(key, asce);
+    } else {
+        for(var ticker in stocks) {
+            if( ticker == "sp500" ) {
+                continue;
+            }
+            var item = {};
+            item.ticker = ticker;
+            list.push(item); 
+        }
+    }
 
     var msg = ""
     msg += "```"
@@ -356,17 +368,20 @@ function handleSummaryCommand(command, channel) {
     msg += padSpacesToLeft("--------", 12)
     msg += padSpacesToLeft("------", 12)
     msg += padSpacesToLeft("--------", 12)
-    for(var item in list) {
-        var key = item["ticker"];
-        var stock = stocks[key]
+    for(var i=0; i<list.length; i++) {
+	var item = list[i];
+        var ticker = item["ticker"];
+        var stock = stocks[ticker]
         msg += "\n"
-        msg += padSpacesToLeft(key.toUpperCase(), 12)
+        msg += padSpacesToLeft(ticker.toUpperCase(), 12)
         msg += padSpacesToLeft(""+stock["price"], 12)
         msg += padSpacesToLeft(""+stock["expected"], 12)
         msg += padSpacesToLeft(""+Math.round(stock["expected_ratio"]*10000)/100, 12)
     }
     msg += "```"
     sendMsg(channel, msg)
+
+    return true;
 }
 
 function handleTickerCommand(channel, ticker) {
