@@ -215,13 +215,13 @@ function handleReportRequest() {
     var msg = "メジャーインデックス\n"
     msg +=  "```\n"
     msg += padSpacesToRight(indicies[".inx"]["name"], 12)
-    msg += padSpacesToRight(indicies[".inx"]["change_ratio"], 8)
+    msg += padSpacesToRight(indicies[".inx"]["change_ratio"]+"%", 8)
     msg += "\n"
     msg += padSpacesToRight(indicies[".dji"]["name"], 12)
-    msg += padSpacesToRight(indicies[".dji"]["change_ratio"], 8)
+    msg += padSpacesToRight(indicies[".dji"]["change_ratio"]+"%", 8)
     msg += "\n"
     msg += padSpacesToRight(indicies["ndx"]["name"], 12)
-    msg += padSpacesToRight(indicies["ndx"]["change_ratio"], 8)
+    msg += padSpacesToRight(indicies["ndx"]["change_ratio"]+"%", 8)
     msg += "\n"
     msg +=  "```\n"
 
