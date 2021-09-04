@@ -47,7 +47,9 @@ if(process.env.TAPABOT_ALT_CHANNEL == undefined){
     process.exit(0);
 }
 
+let info = {}
 let stocks = {}
+let indicies = {}
 
 const app = express();
 app.use(express.urlencoded({
@@ -56,7 +58,9 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.post("/stocks", (req, res) => {
     logger.info('New stocks info arrived.')
-    stocks = req.body;
+    info = req.body;
+    stocks = info["stocks"]
+    indicies = info["indicies"]
     utime = Date();
 
     res.send("OK")
@@ -64,12 +68,13 @@ app.post("/stocks", (req, res) => {
 app.post("/report", (req, res) => {
     logger.info('Report request arrived.')
     var r = req.body
-    var tradeTime = stocks["sp500"]["tradeTime"]
+    var tradeTime = info["utime"]
     var now = Date.now()
     if( r["force"] || (now-tradeTime)/1000/60/60 < 24 ) {
         handleReportRequest();
+        logger.info('Report request handled [now='+now+' utime='+tradeTime+']')
     } else {
-        logger.info('Report request ignored.')
+        logger.info('Report request ignored [now='+now+' utime='+tradeTime+']')
     }
     res.send("OK");
 });
@@ -148,9 +153,6 @@ function sortStocks(key, asce) {
 
     for(var ticker in stocks) {
         var item = {}
-        if( ticker == "sp500" ) {
-            continue;
-        }
         item["ticker"]= ticker.toUpperCase();
         if( key == "ticker" ) {
             item["value"] = ticker;
@@ -369,7 +371,7 @@ function handleSummaryCommand(command, channel) {
 
 function handleTickerCommand(channel, ticker) {
     var msg = ""
-    if(ticker in stocks && ticker !== "sp500") {
+    if(ticker in stocks) {
         var stock = stocks[ticker]
         msg += "**"+stock["name"]+"**\n"
         msg += stock["comment"]+"\n"
