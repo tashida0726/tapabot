@@ -212,7 +212,20 @@ function handleReportRequest() {
         worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000)/100;
     }
 
-    var msg = "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Estimated Ratio）です"
+    var msg = "メジャーインデックス\n"
+    msg +=  "```\n"
+    msg += padSpacesToRight(indicies[".inx"]["name"], 12)
+    msg += padSpacesToRight(indicies[".inx"]["change_ratio"], 8)
+    msg += "\n"
+    msg += padSpacesToRight(indicies[".dji"]["name"], 12)
+    msg += padSpacesToRight(indicies[".dji"]["change_ratio"], 8)
+    msg += "\n"
+    msg += padSpacesToRight(indicies["ndx"]["name"], 12)
+    msg += padSpacesToRight(indicies["ndx"]["change_ratio"], 8)
+    msg += "\n"
+    msg +=  "```\n"
+
+    msg += "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Estimated Ratio）です\n"
     msg +=  "```\n"
     msg += "Change Ratio Top 3\n"
     msg += getTop3Summary(top3Change);
