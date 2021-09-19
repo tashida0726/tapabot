@@ -148,16 +148,16 @@ function padSpacesToRight(s, l) {
     }
 }
 
-function sortStocks(key, asce) {
+function sortItems(d, key, asce) {
     var list = []
 
-    for(var ticker in stocks) {
+    for(var ticker in d) {
         var item = {}
         item["ticker"]= ticker.toUpperCase();
         if( key == "ticker" ) {
             item["value"] = ticker;
         } else {
-            item["value"] = stocks[ticker][key];
+            item["value"] = d[ticker][key];
         }
         list.push(item);
     }
@@ -183,8 +183,30 @@ function sortStocks(key, asce) {
     return list;
 }
 
+function getIndexSummary() {
+    var summary = "";
+    var list = sortItems(indicies, "order", desc);
+    for(var i = 0; i < list.length; i++) {
+        var ticker = list[i]["ticker"]
+        summary += padSpacesToRight(indicies[ticker]["name"], 12)
+        summary += padSpacesToRight(indicies[ticker]["change_ratio"], 8)
+        summary += "\n"
+    }
+}
+
+function getETFSummary() {
+    var summary = "";
+    var list = sortItems(etfs, "order", desc);
+    for(var i = 0; i < list.length; i++) {
+        var ticker = list[i]["ticker"]
+        summary += padSpacesToRight(ticker, 6)
+        summary += padSpacesToRight(etfs[ticker]["change_ratio"], 8)
+        summary += "\n"
+    }
+}
+
 function getTop3Stocks(key, top) {
-    var list = sortStocks(key, top);
+    var list = sortItems(stocks, key, top);
     return list.slice(0, 3);
 }
 
@@ -212,20 +234,19 @@ function handleReportRequest() {
         worst3Expected[i]["value"] = Math.round(worst3Expected[i]["value"]*10000)/100;
     }
 
-    var msg = "メジャーインデックス\n"
+    var msg = "主要指数\n"
     msg +=  "```\n"
-    msg += padSpacesToRight(indicies[".inx"]["name"], 12)
-    msg += padSpacesToRight(indicies[".inx"]["change_ratio"]+"%", 8)
-    msg += "\n"
-    msg += padSpacesToRight(indicies[".dji"]["name"], 12)
-    msg += padSpacesToRight(indicies[".dji"]["change_ratio"]+"%", 8)
-    msg += "\n"
-    msg += padSpacesToRight(indicies["ndx"]["name"], 12)
-    msg += padSpacesToRight(indicies["ndx"]["change_ratio"]+"%", 8)
-    msg += "\n"
+    msg +=  getIndexSummary();
     msg +=  "```\n"
 
-    msg += "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Estimated Ratio）です\n"
+    msg +=  "注目ETF\n"
+    msg +=  "```\n"
+    msg +=  getETFSummary();
+    msg +=  "```\n"
+
+    sendMsg(process.env.TAPABOT_ALT_CHANNEL, msg)
+
+    msg = "昨日の語る会銘柄の前日比（Change Ratio）と見込み値からの乖離率（Estimated Ratio）です\n"
     msg +=  "```\n"
     msg += "Change Ratio Top 3\n"
     msg += getTop3Summary(top3Change);
@@ -357,7 +378,7 @@ function handleSummaryCommand(command, channel) {
     var list = [];
 
     if( key !== "" ) {
-        list = sortStocks(key, asce);
+        list = sortItems(stocks, key, asce);
     } else {
         for(var ticker in stocks) {
             if( ticker == "sp500" ) {
