@@ -51,6 +51,7 @@ let info = {}
 let stocks = {}
 let indicies = {}
 let currencies = {}
+let etfs = []
 
 const app = express();
 app.use(express.urlencoded({
@@ -63,6 +64,7 @@ app.post("/stocks", (req, res) => {
     stocks = info["stocks"]
     indicies = info["indicies"]
     currencies = info["currencies"]
+    etfs = info["etfs"]
     utime = Date();
 
     res.send("OK")
@@ -202,7 +204,7 @@ function getCurrencySummary() {
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
         summary += padSpacesToRight(currencies[ticker.toLowerCase()]["name"], 12)
-        summary += padSpacesToRight(etfs[ticker.toLowerCase()]["price"], 8)
+        summary += padSpacesToRight(currencies[ticker.toLowerCase()]["price"], 8)
         summary += "\n"
     }
 }
