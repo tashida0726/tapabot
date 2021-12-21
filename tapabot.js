@@ -50,6 +50,7 @@ if(process.env.TAPABOT_ALT_CHANNEL == undefined){
 let info = {}
 let stocks = {}
 let indicies = {}
+let currencies = {}
 
 const app = express();
 app.use(express.urlencoded({
@@ -61,6 +62,7 @@ app.post("/stocks", (req, res) => {
     info = req.body;
     stocks = info["stocks"]
     indicies = info["indicies"]
+    currencies = info["currencies"]
     utime = Date();
 
     res.send("OK")
@@ -194,6 +196,17 @@ function getIndexSummary() {
     }
 }
 
+function getCurrencySummary() {
+    var summary = "";
+    var list = sortItems(currencies, "order", desc);
+    for(var i = 0; i < list.length; i++) {
+        var ticker = list[i]["ticker"]
+        summary += padSpacesToRight(currencies[ticker]["name"], 10)
+        summary += padSpacesToRight(etfs[ticker]["price"], 8)
+        summary += "\n"
+    }
+}
+
 function getETFSummary() {
     var summary = "";
     var list = sortItems(etfs, "order", desc);
@@ -237,6 +250,11 @@ function handleReportRequest() {
     var msg = "主要指数\n"
     msg +=  "```\n"
     msg +=  getIndexSummary();
+    msg +=  "```\n"
+
+    msg += "通貨など\n"
+    msg +=  "```\n"
+    msg +=  getCurrencySummary();
     msg +=  "```\n"
 
     msg +=  "注目ETF\n"
