@@ -196,6 +196,8 @@ function getIndexSummary() {
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"], 8)
         summary += "\n"
     }
+
+    return summary
 }
 
 function getCurrencySummary() {
@@ -207,6 +209,8 @@ function getCurrencySummary() {
         summary += padSpacesToRight(currencies[ticker.toLowerCase()]["price"], 8)
         summary += "\n"
     }
+
+    return summary
 }
 
 function getETFSummary() {
@@ -218,6 +222,8 @@ function getETFSummary() {
         summary += padSpacesToRight(etfs[ticker.toLowerCase()]["change_ratio"], 8)
         summary += "\n"
     }
+
+    return summary
 }
 
 function getTop3Stocks(key, top) {
