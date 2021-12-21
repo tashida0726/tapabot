@@ -187,33 +187,33 @@ function sortItems(d, key, asce) {
 
 function getIndexSummary() {
     var summary = "";
-    var list = sortItems(indicies, "order", desc);
+    var list = sortItems(indicies, "order", false);
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
-        summary += padSpacesToRight(indicies[ticker]["name"], 12)
-        summary += padSpacesToRight(indicies[ticker]["change_ratio"], 8)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["name"], 12)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"], 8)
         summary += "\n"
     }
 }
 
 function getCurrencySummary() {
     var summary = "";
-    var list = sortItems(currencies, "order", desc);
+    var list = sortItems(currencies, "order", false);
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
-        summary += padSpacesToRight(currencies[ticker]["name"], 10)
-        summary += padSpacesToRight(etfs[ticker]["price"], 8)
+        summary += padSpacesToRight(currencies[ticker.toLowerCase()]["name"], 12)
+        summary += padSpacesToRight(etfs[ticker.toLowerCase()]["price"], 8)
         summary += "\n"
     }
 }
 
 function getETFSummary() {
     var summary = "";
-    var list = sortItems(etfs, "order", desc);
+    var list = sortItems(etfs, "order", false);
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
         summary += padSpacesToRight(ticker, 6)
-        summary += padSpacesToRight(etfs[ticker]["change_ratio"], 8)
+        summary += padSpacesToRight(etfs[ticker.toLowerCase()]["change_ratio"], 8)
         summary += "\n"
     }
 }
@@ -226,11 +226,11 @@ function getTop3Stocks(key, top) {
 function getTop3Summary(list) {
     var summary = ""
     summary += padSpacesToRight("Ticker", 8)
-    summary += padSpacesToRight("Ratio[%]", 12)
+    summary += padSpacesToRight("Ratio", 12)
     summary += "\n"
     for(var i = 0; i < list.length; i++) {
         summary += padSpacesToRight(list[i]["ticker"].toUpperCase(), 8)
-        summary += padSpacesToRight(""+list[i]["value"], 12)
+        summary += padSpacesToRight(""+list[i]["value"]+"%", 12)
         summary += "\n"
     }
     return summary;
@@ -261,6 +261,7 @@ function handleReportRequest() {
     msg +=  "```\n"
     msg +=  getETFSummary();
     msg +=  "```\n"
+    msg +=  "\n"
 
     sendMsg(process.env.TAPABOT_ALT_CHANNEL, msg)
 
