@@ -193,8 +193,8 @@ function getIndexSummary() {
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["name"], 12)
-        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["price"], 8)
-        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"].toFixed(2)+"%", 8)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["price"], 10)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"].toFixed(2)+"%", 6)
         summary += "\n"
     }
 
