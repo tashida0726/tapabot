@@ -112,6 +112,7 @@ client.on('message', message =>{
 
 function padSpacesToLeft(s, l) {
     var len = 0
+    s+=""
     for (var i = 0; i < s.length; i++) {
         if(s[i].match(/[ -~]/) ) {
             len += 1;
@@ -133,6 +134,7 @@ function padSpacesToLeft(s, l) {
 
 function padSpacesToRight(s, l) {
     var len = 0
+    s+=""
     for (var i = 0; i < s.length; i++) {
         if(s[i].match(/[ -~]/) ) {
             len += 1;
