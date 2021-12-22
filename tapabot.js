@@ -193,7 +193,8 @@ function getIndexSummary() {
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["name"], 12)
-        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"]+"%", 8)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["price"], 8)
+        summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"].toFixed(2)+"%", 8)
         summary += "\n"
     }
 
@@ -219,7 +220,7 @@ function getETFSummary() {
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
         summary += padSpacesToRight(ticker, 6)
-        summary += padSpacesToRight(etfs[ticker.toLowerCase()]["change_ratio"]+"%", 8)
+        summary += padSpacesToRight(etfs[ticker.toLowerCase()]["change_ratio"].toFixed(2)+"%", 8)
         summary += "\n"
     }
 
@@ -238,7 +239,7 @@ function getTop3Summary(list) {
     summary += "\n"
     for(var i = 0; i < list.length; i++) {
         summary += padSpacesToRight(list[i]["ticker"].toUpperCase(), 8)
-        summary += padSpacesToRight(""+list[i]["value"]+"%", 12)
+        summary += padSpacesToRight(""+list[i]["value"].toFixed(2)+"%", 12)
         summary += "\n"
     }
     return summary;
