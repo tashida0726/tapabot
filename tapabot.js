@@ -464,21 +464,28 @@ function handleSummaryCommand(command, channel) {
 
 function handleTickerCommand(channel, ticker) {
     var msg = ""
+    var stock = {}
     if(ticker in stocks) {
-        var stock = stocks[ticker]
-        msg += "**"+stock["name"]+"**\n"
-        msg += stock["comment"]+"\n"
-        msg += "```\n"
-        msg += "現在値[$]: 　"+stock["price"]+"\n"
-        msg += "前日比[$]: 　"+stock["change"]+"\n"
-        msg += "前日比[%]: 　"+stock["change_ratio"]+"\n"
-        msg += "見込み値[$]: "+stock["expected"]+"\n"
-        msg += "乖離率[%]: 　"+Math.round(stock["expected_ratio"]*10000)/100+"\n"
-        msg += "```\n"
-        msg += "[Yahoo!Financeチャート]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
+        stock = stocks[ticker]
+    } else if(ticker in extra) {
+        stock = extra[ticker]
     } else {
         msg += "["+ticker+"]は語る会銘柄ではありません。もう一度tickerを確認してください。"
+        sendMsg(channel, msg)
+        return true
     }
+
+    msg += "**"+stock["name"]+"**\n"
+    msg += stock["comment"]+"\n"
+    msg += "```\n"
+    msg += "現在値[$]: 　"+stock["price"]+"\n"
+    msg += "前日比[$]: 　"+stock["change"]+"\n"
+    msg += "前日比[%]: 　"+stock["change_ratio"]+"\n"
+    msg += "見込み値[$]: "+stock["expected"]+"\n"
+    msg += "乖離率[%]: 　"+Math.round(stock["expected_ratio"]*10000)/100+"\n"
+    msg += "```\n"
+    msg += "[Yahoo!Financeチャート]https://finance.yahoo.com/quote/"+ticker.toUpperCase()+"/chart"
+
     sendMsg(channel, msg)
 
     return true
