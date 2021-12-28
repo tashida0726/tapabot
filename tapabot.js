@@ -52,6 +52,8 @@ let stocks = {}
 let indicies = {}
 let currencies = {}
 let etfs = []
+let extra = {}
+
 
 const app = express();
 app.use(express.urlencoded({
@@ -65,6 +67,13 @@ app.post("/stocks", (req, res) => {
     indicies = info["indicies"]
     currencies = info["currencies"]
     etfs = info["etfs"]
+    utime = Date();
+
+    res.send("OK")
+});
+app.post("/stocks/extra", (req, res) => {
+    logger.info('New stocks(extra) info arrived.')
+    extra = req.body["extra"]
     utime = Date();
 
     res.send("OK")
@@ -380,6 +389,48 @@ function getKeyFromCommandArg(arg) {
     }
 }
 
+function showSummary(c, h, s, key, asce) {
+    var list = [];
+
+    if( key !== "" ) {
+        list = sortItems(s, key, asce);
+    } else {
+        for(var ticker in s) {
+            var item = {};
+            item.ticker = ticker;
+            list.push(item); 
+        }
+    }
+
+    var msg = ""
+    msg += h
+    msg += "\n"
+    msg += "```"
+    msg += "\n"
+    msg += padSpacesToLeft("Ticker", 12)
+    msg += padSpacesToLeft("Price[$]", 12)
+    msg += padSpacesToLeft("Est[$]", 12)
+    msg += padSpacesToLeft("Ratio[%]", 12)
+    msg += "\n"
+    msg += padSpacesToLeft("------", 12)
+    msg += padSpacesToLeft("--------", 12)
+    msg += padSpacesToLeft("------", 12)
+    msg += padSpacesToLeft("--------", 12)
+    for(var i=0; i<list.length; i++) {
+	var item = list[i];
+        var ticker = item["ticker"];
+        var stock = stocks[ticker]
+        msg += "\n"
+        msg += padSpacesToLeft(ticker.toUpperCase(), 12)
+        msg += padSpacesToLeft(""+s["price"], 12)
+        msg += padSpacesToLeft(""+s["expected"], 12)
+        msg += padSpacesToLeft(""+Math.round(s["expected_ratio"]*10000)/100, 12)
+    }
+    msg += "```"
+    sendMsg(c, msg)
+
+}
+
 function handleSummaryCommand(command, channel) {
     var tokens = command.split(":");
     var asce = true;
@@ -405,45 +456,8 @@ function handleSummaryCommand(command, channel) {
         }
     }
 
-    var list = [];
-
-    if( key !== "" ) {
-        list = sortItems(stocks, key, asce);
-    } else {
-        for(var ticker in stocks) {
-            if( ticker == "sp500" ) {
-                continue;
-            }
-            var item = {};
-            item.ticker = ticker;
-            list.push(item); 
-        }
-    }
-
-    var msg = ""
-    msg += "```"
-    msg += "\n"
-    msg += padSpacesToLeft("Ticker", 12)
-    msg += padSpacesToLeft("Price[$]", 12)
-    msg += padSpacesToLeft("Est[$]", 12)
-    msg += padSpacesToLeft("Ratio[%]", 12)
-    msg += "\n"
-    msg += padSpacesToLeft("------", 12)
-    msg += padSpacesToLeft("--------", 12)
-    msg += padSpacesToLeft("------", 12)
-    msg += padSpacesToLeft("--------", 12)
-    for(var i=0; i<list.length; i++) {
-	var item = list[i];
-        var ticker = item["ticker"];
-        var stock = stocks[ticker]
-        msg += "\n"
-        msg += padSpacesToLeft(ticker.toUpperCase(), 12)
-        msg += padSpacesToLeft(""+stock["price"], 12)
-        msg += padSpacesToLeft(""+stock["expected"], 12)
-        msg += padSpacesToLeft(""+Math.round(stock["expected_ratio"]*10000)/100, 12)
-    }
-    msg += "```"
-    sendMsg(channel, msg)
+    showSummary(channel, "語る会銘柄一覧", stocks, key, asce);
+    showSummary(channel, "注目銘柄一覧", extra, key, asce);
 
     return true;
 }
