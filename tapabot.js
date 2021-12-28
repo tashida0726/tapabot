@@ -419,12 +419,12 @@ function showSummary(c, h, s, key, asce) {
     for(var i=0; i<list.length; i++) {
 	var item = list[i];
         var ticker = item["ticker"];
-        var stock = stocks[ticker]
+        var stock = s[ticker]
         msg += "\n"
         msg += padSpacesToLeft(ticker.toUpperCase(), 12)
-        msg += padSpacesToLeft(""+s["price"], 12)
-        msg += padSpacesToLeft(""+s["expected"], 12)
-        msg += padSpacesToLeft(""+Math.round(s["expected_ratio"]*10000)/100, 12)
+        msg += padSpacesToLeft(""+stock["price"], 12)
+        msg += padSpacesToLeft(""+stock["expected"], 12)
+        msg += padSpacesToLeft(""+Math.round(stock["expected_ratio"]*10000)/100, 12)
     }
     msg += "```"
     sendMsg(c, msg)
