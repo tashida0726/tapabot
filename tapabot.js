@@ -419,7 +419,7 @@ function showSummary(c, h, s, key, asce) {
     for(var i=0; i<list.length; i++) {
 	var item = list[i];
         var ticker = item["ticker"];
-        var stock = s[ticker]
+        var stock = s[ticker.toLowerCase()]
         msg += "\n"
         msg += padSpacesToLeft(ticker.toUpperCase(), 12)
         msg += padSpacesToLeft(""+stock["price"], 12)
