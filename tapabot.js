@@ -91,6 +91,17 @@ app.post("/report", (req, res) => {
     }
     res.send("OK");
 });
+app.post("/redirect", (req, res) => {
+    logger.info('Message redirect request arrived.')
+    info = req.body;
+    msg = info["msg"];
+
+    sendMsg(process.env.TAPABOT_ALT_CHANNEL, msg);
+
+    res.send("OK");
+}
+);
+
 
 app.listen(process.env.REST_PORT)
 
@@ -201,8 +212,10 @@ function sortItems(d, key, asce) {
 function getIndexSummary() {
     var summary = "";
     var list = sortItems(indicies, "order", false);
+    console.log(indicies)
     for(var i = 0; i < list.length; i++) {
         var ticker = list[i]["ticker"]
+	console.log(ticker)
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["name"], 12)
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["price"], 10)
         summary += padSpacesToRight(indicies[ticker.toLowerCase()]["change_ratio"].toFixed(2)+"%", 6)
